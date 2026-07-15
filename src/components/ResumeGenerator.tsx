@@ -94,6 +94,7 @@ export const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ analysisResult
   const [accentColor, setAccentColor] = useState("#3B82F6"); // Default blue
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const skipAutoScrollRef = useRef(false);
 
   // Pre-configured accent colors
   const ACCENT_COLORS = [
@@ -107,8 +108,16 @@ export const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ analysisResult
 
   // Auto-scroll chat to bottom
   useEffect(() => {
+    if (skipAutoScrollRef.current) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Reset skip-auto-scroll flag once AI response finishes loading
+  useEffect(() => {
+    if (!isChatLoading) {
+      skipAutoScrollRef.current = false;
+    }
+  }, [isChatLoading]);
 
   // Handle importing active career analysis as starting point
   const handleImportAnalysis = () => {
@@ -569,19 +578,25 @@ export const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ analysisResult
               {messages.length > 1 && (
                 <>
                   <button
-                    onClick={() => handleSendMessage(undefined, "Can you draft a strong Summary statement focusing on tech leadership?")}
+                    onClick={() => { skipAutoScrollRef.current = true; handleSendMessage(undefined, "I want to start from scratch and build a new resume."); }}
+                    className="text-[10px] bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50/20 text-slate-600 hover:text-purple-700 px-2 py-1.5 rounded-lg font-bold transition-all cursor-pointer"
+                  >
+                    🆕 Start from Scratch
+                  </button>
+                  <button
+                    onClick={() => { skipAutoScrollRef.current = true; handleSendMessage(undefined, "Can you draft a strong Summary statement focusing on tech leadership?"); }}
                     className="text-[10px] bg-white border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 text-slate-600 hover:text-blue-700 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                   >
                     ✍️ Draft Summary
                   </button>
                   <button
-                    onClick={() => handleSendMessage(undefined, "How can I rewrite my experience bullets to include metrics?")}
+                    onClick={() => { skipAutoScrollRef.current = true; handleSendMessage(undefined, "How can I rewrite my experience bullets to include metrics?"); }}
                     className="text-[10px] bg-white border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 text-slate-600 hover:text-blue-700 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                   >
                     📊 Add Metrics
                   </button>
                   <button
-                    onClick={() => handleSendMessage(undefined, "Suggest the top 10 core soft & hard skills for Frontend/Fullstack devs.")}
+                    onClick={() => { skipAutoScrollRef.current = true; handleSendMessage(undefined, "Suggest the top 10 core soft & hard skills for Frontend/Fullstack devs."); }}
                     className="text-[10px] bg-white border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 text-slate-600 hover:text-blue-700 px-2 py-1.5 rounded-lg transition-all cursor-pointer"
                   >
                     🛠️ Tech Skills
